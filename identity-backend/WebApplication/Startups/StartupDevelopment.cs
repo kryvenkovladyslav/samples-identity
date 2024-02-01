@@ -5,10 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using WebApplication.Infrastructure.Middleware;
 
 namespace WebApplication.Startups
 {
-    public class StartupDevelopment
+    public sealed class StartupDevelopment
     {
         public IConfiguration Configuration { get; }
 
@@ -27,7 +29,8 @@ namespace WebApplication.Startups
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
-            services.AddAuthentication();
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
             services.AddAuthorization();
         }
 
@@ -37,7 +40,6 @@ namespace WebApplication.Startups
             app.UseSwaggerUI();
             app.UseDeveloperExceptionPage();
 
-
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -45,7 +47,9 @@ namespace WebApplication.Startups
             app.UseRouting();
 
             app.UseAuthentication();
+            app.UseMiddleware<ClaimsReporterMiddleware>();
             app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
