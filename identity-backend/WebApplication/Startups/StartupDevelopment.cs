@@ -5,8 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using WebApplication.Infrastructure.Middleware;
+using WebApplication.Infrastructure.Authentication;
 
 namespace WebApplication.Startups
 {
@@ -16,7 +16,7 @@ namespace WebApplication.Startups
 
         public StartupDevelopment(IConfiguration configuration)
         {
-            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            this.Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -29,8 +29,13 @@ namespace WebApplication.Startups
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+            services.AddDataProtection();
+
+            services.AddAuthentication(options =>
+            {
+                options.AddScheme<ExtendedAuthenticationHandler>(AuthenticationDefaults.CustomScheme, AuthenticationDefaults.CustomScheme);
+                options.DefaultScheme = AuthenticationDefaults.CustomScheme;
+            });
             services.AddAuthorization();
         }
 
@@ -44,12 +49,16 @@ namespace WebApplication.Startups
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            //app.UseMiddleware<CookieAuthenticationMiddleware>();
+            app.UseAuthentication();
+            app.UseMiddleware<RoleMembershipMiddleware>();
+
             app.UseRouting();
 
-            app.UseAuthentication();
-            app.UseMiddleware<ClaimsReporterMiddleware>();
             app.UseAuthorization();
 
+            app.UseMiddleware<ClaimsReporterMiddleware>();
+            //app.UseMiddleware<AuthorizationMiddleware>();
 
             app.UseEndpoints(endpoints => endpoints.MapControllers());
         }

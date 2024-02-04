@@ -12,6 +12,6 @@ namespace WebApplication.Infrastructure.Middleware
             this.Next = next;
         }
 
-        public abstract Task InvokeAsync(HttpContext context);
+        public abstract Task Invoke(HttpContext context);
     }
 }

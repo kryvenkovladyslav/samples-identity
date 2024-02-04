@@ -8,8 +8,7 @@ using System.Linq;
 namespace WebApplication.Controllers
 {
     [ApiController]
-    [Authorize]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -24,8 +23,8 @@ namespace WebApplication.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpGet]
+        public IEnumerable<WeatherForecast> GetWeatherForecast()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
@@ -34,6 +33,14 @@ namespace WebApplication.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+
+        [HttpGet]
+        [Authorize]
+        public string GetSecret()
+        {
+            return "Secret";
         }
     }
 }

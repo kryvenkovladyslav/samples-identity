@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using System.Net.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.DataProtection;
+using WebApplication.Infrastructure.Authentication;
 
 namespace WebApplication.Controllers
 {
@@ -15,31 +19,32 @@ namespace WebApplication.Controllers
     [Route("/api/[controller]/[action]")]
     public sealed class AuthenticationController : ControllerBase
     {
-        [AllowAnonymous]
-        [HttpPost]
-        public ActionResult AuthenticateUser([FromBody] UserAuthentication user)
+        private readonly string requiredParameter;
+
+        public AuthenticationController()
         {
-            if (user == null)
-            {
-                return this.BadRequest("User is empty");
-            }
-
-            var userName = new Claim(ClaimTypes.Name, user.UserName);
-            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-            identity.AddClaim(userName);
-            var principal = new ClaimsPrincipal(identity);
-
-            this.HttpContext.SignInAsync(principal);
-
-            return this.Ok("Authenticated");
+            this.requiredParameter = "userName";
         }
 
-        [Authorize]
-        [HttpPost]
-        public ActionResult Logout()
+        [HttpGet]
+        public async Task SignIn()
         {
-            this.HttpContext.SignOutAsync();
-            return this.Ok("Done");
+            string userName = this.HttpContext.Request.Query[this.requiredParameter];
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                await this.HttpContext.ChallengeAsync();
+            }
+
+            var claim = new Claim(ClaimTypes.Name, userName);
+            var identity = new ClaimsIdentity(new[] { claim }, AuthenticationDefaults.CustomScheme);
+            await this.HttpContext.SignInAsync(new ClaimsPrincipal(identity));
+        }
+
+        [HttpGet]
+        public async Task Logout()
+        {
+            await this.HttpContext.SignOutAsync();
         }
     }
 }

@@ -17,7 +17,7 @@ namespace WebApplication.Infrastructure.Middleware
             this.logger = logger;
         }
 
-        public async override Task InvokeAsync(HttpContext context)
+        public async override Task Invoke(HttpContext context)
         {
             ClaimsPrincipal principal = context.User;
 
@@ -31,7 +31,7 @@ namespace WebApplication.Infrastructure.Middleware
                 this.logger.LogInformation($"Authentication type: { identity.AuthenticationType}, { identity.Claims.Count() } claims");
                 foreach (var claim in identity.Claims)
                 {
-                    Console.WriteLine($"Type: { GetName(claim.Type) }, Value: { claim.Value }, Issuer: { claim.Issuer }");
+                    this.logger.LogInformation($"Type: { GetName(claim.Type) }, Value: { claim.Value }, Issuer: { claim.Issuer }");
                 }
             }
             
