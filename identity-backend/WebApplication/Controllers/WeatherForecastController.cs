@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WebApplication.Infrastructure.Authorization;
 
 namespace WebApplication.Controllers
 {
@@ -44,7 +45,7 @@ namespace WebApplication.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "AdminPolicyJack")]
+        [Authorize(Policy = nameof(AuthorizationPolicies.CustomUserPolicyName))]
         public ActionResult<List<bool>> AuthorizationReports()
         {
             Dictionary<(string, string), bool> items = this.HttpContext.Items["authReport"] as Dictionary<(string, string), bool>;

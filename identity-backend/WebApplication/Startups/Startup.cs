@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace WebApplication.Startups
+{ 
     public sealed class Startup
     {
         public IConfiguration Configuration { get; }
