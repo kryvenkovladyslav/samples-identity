@@ -1,23 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
+using WebApplication.Infrastructure.Authentication;
 
 namespace WebApplication.Data
 {
     public static class UserClaims
     {
-        public static Dictionary<string, IEnumerable<string>> UserClaimsData { get; private set; }
+        public static string[] Schemes { get; private set; }
 
         public static IEnumerable<string> Users { get; private set; }
 
+        public static Dictionary<string, IEnumerable<ApplicationRoles>> UserClaimsData { get; private set; }
+
         static UserClaims()
         {
-            UserClaimsData = new Dictionary<string, IEnumerable<string>>()
+            Schemes = new string[] { AuthenticationDefaults.CustomScheme, AuthenticationDefaults.RestrictedScheme };
+
+            UserClaimsData = new Dictionary<string, IEnumerable<ApplicationRoles>>()
             {
-                { "Vladyslav", new [] { "User", "Admin" } },
-                { "Jack", new [] { "User", "Admin" } },
-                { "Tom", new [] { "User" } },
-                { "Liza", new [] { "User" } }
+                { "Vladyslav", new [] { ApplicationRoles.User, ApplicationRoles.Admin } },
+                { "Jack", new [] { ApplicationRoles.User, ApplicationRoles.Admin } },
+                { "Tom", new [] { ApplicationRoles.User } },
+                { "Liza", new [] { ApplicationRoles.User } }
             };
 
             Users = new List<string>
@@ -26,13 +33,22 @@ namespace WebApplication.Data
             };
         }
 
-        public static IEnumerable<string> GetUsers()
+        public static IEnumerable<ClaimsPrincipal> GetUsers()
         {
-            return UserClaimsData.Keys;
+            foreach (string scheme in Schemes)
+            {
+                foreach (var kvp in Claims)
+                {
+                    var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, kvp.Key) }, scheme);
+                    identity.AddClaims(kvp.Value);
+                    yield return new ClaimsPrincipal(identity);
+                }
+            }
         }
 
-        public static Dictionary<string, IEnumerable<Claim>> Claims =>
-            UserClaimsData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(role => new Claim(ClaimTypes.Role, role)));
-
+        public static Dictionary<string, IEnumerable<Claim>> Claims
+        {
+            get => UserClaimsData.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(role => new Claim(ClaimTypes.Role, Enum.GetName(role))));
+        }
     }
 }

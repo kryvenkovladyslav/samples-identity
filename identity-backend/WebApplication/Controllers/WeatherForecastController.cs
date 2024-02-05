@@ -42,5 +42,20 @@ namespace WebApplication.Controllers
         {
             return "Secret";
         }
+
+        [HttpGet]
+        [Authorize(Policy = "AdminPolicyJack")]
+        public ActionResult<List<bool>> AuthorizationReports()
+        {
+            Dictionary<(string, string), bool> items = this.HttpContext.Items["authReport"] as Dictionary<(string, string), bool>;
+
+            var list = new List<bool>();
+            foreach (var item in items.Keys)
+            {
+                list.Add(items[item]);
+            }
+
+            return Ok(list);
+        }
     }
 }

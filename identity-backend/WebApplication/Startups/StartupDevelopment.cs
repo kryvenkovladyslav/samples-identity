@@ -7,6 +7,9 @@ using System;
 using Microsoft.AspNetCore.DataProtection;
 using WebApplication.Infrastructure.Middleware;
 using WebApplication.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using WebApplication.Infrastructure.Authorization.Handlers;
+using WebApplication.Infrastructure.Authorization;
 
 namespace WebApplication.Startups
 {
@@ -21,6 +24,8 @@ namespace WebApplication.Startups
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IAuthorizationHandler, DefaultAuthorizationRequirementHandler>();
+
             services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
                 .SetApplicationName("WebAPi");
@@ -36,7 +41,11 @@ namespace WebApplication.Startups
                 options.AddScheme<ExtendedAuthenticationHandler>(AuthenticationDefaults.CustomScheme, AuthenticationDefaults.CustomScheme);
                 options.DefaultScheme = AuthenticationDefaults.CustomScheme;
             });
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                AuthorizationPolicies.AddPolicies(options);
+            });
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -49,16 +58,24 @@ namespace WebApplication.Startups
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            // Use this middleware to enable custom authentication middleware without authentication service being configured
             //app.UseMiddleware<CookieAuthenticationMiddleware>();
+
             app.UseAuthentication();
-            app.UseMiddleware<RoleMembershipMiddleware>();
+
+            // Use this middleware to enable middleware setting the role claim to a request
+            //app.UseMiddleware<RoleMembershipMiddleware>();
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
-            app.UseMiddleware<ClaimsReporterMiddleware>();
-            //app.UseMiddleware<AuthorizationMiddleware>();
+            app.UseMiddleware<AuthorizationReporterMiddleware>();
+
+            //app.UseMiddleware<ClaimsReporterMiddleware>();
+
+            // Use this middleware to enable custom authorization middleware without authorization service being configured
+            //app.UseMiddleware<Infrastructure.Middleware.AuthorizationMiddleware>();
 
             app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
