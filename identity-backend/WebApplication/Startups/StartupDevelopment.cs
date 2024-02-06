@@ -64,15 +64,15 @@ namespace WebApplication.Startups
             app.UseAuthentication();
 
             // Use this middleware to enable middleware setting the role claim to a request
-            //app.UseMiddleware<RoleMembershipMiddleware>();
 
             app.UseRouting();
+            //app.UseMiddleware<RoleMembershipMiddleware>();
 
-            //app.UseAuthorization();
+            app.UseAuthorization();
 
-            app.UseMiddleware<AuthorizationReporterMiddleware>();
+            //app.UseMiddleware<AuthorizationReporterMiddleware>();
 
-            //app.UseMiddleware<ClaimsReporterMiddleware>();
+            app.UseMiddleware<ClaimsReporterMiddleware>();
 
             // Use this middleware to enable custom authorization middleware without authorization service being configured
             //app.UseMiddleware<Infrastructure.Middleware.AuthorizationMiddleware>();

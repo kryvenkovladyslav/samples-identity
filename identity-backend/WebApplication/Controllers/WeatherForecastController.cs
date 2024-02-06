@@ -38,7 +38,7 @@ namespace WebApplication.Controllers
 
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = nameof(AuthorizationPolicies.CustomAdministratorPolicyName))]
         public string GetSecret()
         {
             return "Secret";

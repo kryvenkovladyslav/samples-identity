@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -37,10 +38,14 @@ namespace WebApplication.Infrastructure.Authentication
                 return Task.FromResult(AuthenticateResult.Fail("Something wrong with credentials"));
             }
 
-            var claim = new Claim(ClaimTypes.Name, decodedCookie);
-            var identity = new ClaimsIdentity(new[] { claim }, AuthenticationDefaults.CustomScheme);
+            var claimsIdentity = new ClaimsIdentity(AuthenticationDefaults.CustomScheme);
+            if (UserClaims.UserClaimsData.ContainsKey(decodedCookie))
+            {
+                claimsIdentity.AddClaims(UserClaims.Claims[decodedCookie]);
+                claimsIdentity.AddClaim(new Claim(ClaimTypes.Name, decodedCookie));
+            }
 
-            return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(identity), this.scheme.Name)));
+            return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), this.scheme.Name)));
         }
 
         public Task ChallengeAsync(AuthenticationProperties properties)
