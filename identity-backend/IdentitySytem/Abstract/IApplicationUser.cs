@@ -4,10 +4,10 @@ namespace IdentitySystem.Abstract
 {
     public interface IApplicationUser<TIdentifier> where TIdentifier : IEquatable<TIdentifier>
     {
-        public TIdentifier ID { get; }
+        public TIdentifier ID { get; set; }
         
-        public string UserName { get; }
+        public string UserName { get; set; }
 
-        public string NormalizedUserName { get; }
+        public string NormalizedUserName { get; set; }
     }
 }

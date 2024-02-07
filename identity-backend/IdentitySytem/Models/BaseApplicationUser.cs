@@ -6,11 +6,11 @@ namespace IdentitySystem.Models
     public abstract class BaseApplicationUser<TIdentifier> : IApplicationUser<TIdentifier>
         where TIdentifier: IEquatable<TIdentifier>
     {
-        public TIdentifier ID { get; private set; }
+        public TIdentifier ID { get; set; }
 
-        public string UserName { get; private set; }
+        public string UserName { get; set; }
 
-        public string NormalizedUserName { get; private set; }
+        public string NormalizedUserName { get; set; }
 
         public BaseApplicationUser(string userName) 
         {
