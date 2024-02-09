@@ -10,6 +10,8 @@ using WebApplication.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using WebApplication.Infrastructure.Authorization.Handlers;
 using WebApplication.Infrastructure.Authorization;
+using IdentitySystem.Extensions;
+using WebApplication.Models;
 
 namespace WebApplication.Startups
 {
@@ -31,10 +33,13 @@ namespace WebApplication.Startups
                 .SetApplicationName("WebAPi");
 
             services.AddControllers();
-            services.AddEndpointsApiExplorer();
+            services.AddEndpointsApiExplorer();;
             services.AddSwaggerGen();
 
             services.AddDataProtection();
+
+
+            services.AddIdentitySystem<ApplicationUser>();
 
             services.AddAuthentication(options =>
             {

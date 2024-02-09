@@ -1,23 +1,32 @@
 ﻿using IdentitySystem.Abstract;
-using IdentitySystem.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ConstrainedExecution;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace IdentitySystem.Stores
 {
-    public class UserStore<TUser> : IUserStore<TUser> where TUser : class, IApplicationUser<string>
+    public class InMemoryUserStore<TUser> : IUserStore<TUser> where TUser : class, IApplicationUser<string>, new()
     {
+        private readonly ILookupNormalizer lookupNormalizer;
+
         private readonly ConcurrentDictionary<string, TUser> users;
 
-        public UserStore()
+        public InMemoryUserStore(ILookupNormalizer lookupNormalizer)
         {
+            this.lookupNormalizer = lookupNormalizer;
             this.users = new ConcurrentDictionary<string, TUser>();
+
+            var name = "Ashley";
+            var id = Guid.NewGuid().ToString();
+            this.users.TryAdd(id, new TUser
+            {
+                ID = id,
+                UserName = name,
+                NormalizedUserName = this.lookupNormalizer.NormalizeName(name),
+            });;
         }
 
         public Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
@@ -25,7 +34,7 @@ namespace IdentitySystem.Stores
             cancellationToken.ThrowIfCancellationRequested();
             ArgumentNullException.ThrowIfNull(user);
 
-            if(!this.users.ContainsKey(user.ID) && this.users.TryAdd(user.ID, user))
+            if (!this.users.ContainsKey(user.ID) && this.users.TryAdd(user.ID, user))
             {
                 return Task.FromResult(IdentityResult.Success);
             }
@@ -47,9 +56,7 @@ namespace IdentitySystem.Stores
         }
 
         public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
+        { }
 
         public Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
@@ -79,7 +86,7 @@ namespace IdentitySystem.Stores
             cancellationToken.ThrowIfCancellationRequested();
             ArgumentNullException.ThrowIfNull(user);
 
-            return Task.FromResult(user.ID.ToString());
+            return Task.FromResult(user.ID);
         }
 
         public Task<string> GetUserNameAsync(TUser user, CancellationToken cancellationToken)

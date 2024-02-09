@@ -16,12 +16,11 @@ namespace WebApplication.Infrastructure.Middleware
         private IAuthorizationPolicyProvider policyProvider;
         private IAuthorizationService authorizationService;
 
-        public AuthorizationReporterMiddleware(RequestDelegate requestDelegate,
-                IAuthorizationPolicyProvider provider,
-                IAuthorizationService service) : base(requestDelegate)
+        public AuthorizationReporterMiddleware(RequestDelegate requestDelegate,IAuthorizationPolicyProvider provider, IAuthorizationService service) 
+            : base(requestDelegate)
         {
-            policyProvider = provider;
-            authorizationService = service;
+            this.policyProvider = provider;
+            this.authorizationService = service;
         }
 
         public override async Task Invoke(HttpContext context)
@@ -38,9 +37,9 @@ namespace WebApplication.Infrastructure.Middleware
 
                 AuthorizationPolicy policy = await AuthorizationPolicy.CombineAsync(this.policyProvider, authorizeData);
 
-                foreach (ClaimsPrincipal cp in GetUsers())
+                foreach (ClaimsPrincipal cp in this.GetUsers())
                 {
-                    results[(cp.Identity.Name, cp.Identity.AuthenticationType)] = isAllowAnonymous || policy == null || await AuthorizeUser(cp, policy);
+                    results[(cp.Identity.Name, cp.Identity.AuthenticationType)] = isAllowAnonymous || policy == null || await this.AuthorizeUser(cp, policy);
                 }
 
                 context.Items["authReport"] = results;
