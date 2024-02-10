@@ -12,6 +12,11 @@ using WebApplication.Infrastructure.Authorization.Handlers;
 using WebApplication.Infrastructure.Authorization;
 using IdentitySystem.Extensions;
 using WebApplication.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using WebApplication.Infrastructure.Options;
+using WebApplication.Infrastructure.OptionSetup;
+using IdentitySystem.Validation;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebApplication.Startups
 {
@@ -22,10 +27,14 @@ namespace WebApplication.Startups
         public StartupDevelopment(IConfiguration configuration)
         {
             this.Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<DefaultEmailValidationOptions>(this.Configuration.GetSection(DefaultEmailValidationOptions.Position));
+            services.ConfigureOptions<DefaultEmailValidationOptionsSetup>();
+
             services.AddTransient<IAuthorizationHandler, DefaultAuthorizationRequirementHandler>();
 
             services.AddDataProtection()
@@ -37,6 +46,7 @@ namespace WebApplication.Startups
             services.AddSwaggerGen();
 
             services.AddDataProtection();
+
 
 
             services.AddIdentitySystem<ApplicationUser>();
