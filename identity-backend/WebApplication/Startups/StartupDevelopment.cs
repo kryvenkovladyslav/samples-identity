@@ -12,11 +12,13 @@ using WebApplication.Infrastructure.Authorization.Handlers;
 using WebApplication.Infrastructure.Authorization;
 using IdentitySystem.Extensions;
 using WebApplication.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using WebApplication.Infrastructure.Options;
 using WebApplication.Infrastructure.OptionSetup;
 using IdentitySystem.Validation;
-using Microsoft.AspNetCore.Identity;
+using WebApplication.Infrastructure;
+using IdentityDataAccessLayer.Models;
+using WebApplication.Database;
+using IdentityDataAccessLayer.Extensions;
 
 namespace WebApplication.Startups
 {
@@ -27,13 +29,18 @@ namespace WebApplication.Startups
         public StartupDevelopment(IConfiguration configuration)
         {
             this.Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<DefaultEmailValidationOptions>(this.Configuration.GetSection(DefaultEmailValidationOptions.Position));
             services.ConfigureOptions<DefaultEmailValidationOptionsSetup>();
+
+            services.Configure<ApplicationSeedUserOptions>(this.Configuration.GetSection(ApplicationSeedUserOptions.Position));
+            services.ConfigureOptions<ApplicationSeedUserOptionsSetup>();
+
+            services.Configure<DefaultConnectionStringOptions>(this.Configuration.GetSection(DefaultConnectionStringOptions.Position));
+            services.ConfigureOptions<DefaultConnectionStringOptionsSetup>();
 
             services.AddTransient<IAuthorizationHandler, DefaultAuthorizationRequirementHandler>();
 
@@ -47,9 +54,8 @@ namespace WebApplication.Startups
 
             services.AddDataProtection();
 
-
-
-            services.AddIdentitySystem<ApplicationUser>();
+            services.AddIdentityDataAccess();
+            services.AddDatabaseStores<IdentityUser, Guid, DatabaseContext>();
 
             services.AddAuthentication(options =>
             {
@@ -65,6 +71,8 @@ namespace WebApplication.Startups
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            DatabaseInitializer.Initialize(app);
+
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseDeveloperExceptionPage();

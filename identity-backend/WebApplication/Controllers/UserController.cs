@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebApplication.Models;
+using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
+using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace WebApplication.Controllers
 {
@@ -11,15 +13,15 @@ namespace WebApplication.Controllers
     [Route("/api/[controller]/[action]")]
     public sealed class UserController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> userManager;
+        private readonly UserManager<IdentityUser> userManager;
         
-        public UserController(UserManager<ApplicationUser> userManager)
+        public UserController(UserManager<IdentityUser> userManager)
         {
             this.userManager = userManager;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<ApplicationUser>> GetAllUsers()
+        public ActionResult<IEnumerable<IdentityUser>> GetAllUsers()
         {
             return this.Ok(this.userManager.Users.ToList());
         }
@@ -31,19 +33,19 @@ namespace WebApplication.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApplicationUser>> FindByEmail(string email)
+        public async Task<ActionResult<IdentityUser>> FindByEmail(string email)
         {
             return this.Ok(await this.userManager.FindByEmailAsync(email));
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApplicationUser>> FindByName(string name)
+        public async Task<ActionResult<IdentityUser>> FindByName(string name)
         {
             return this.Ok(await this.userManager.FindByNameAsync(name));
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApplicationUser>> AddUser(ApplicationUser user)
+        public async Task<ActionResult<IdentityUser>> AddUser(string name, string email, string phone)
         {
             // This part of code can be deleted because UserManager takes over validation process
 
@@ -54,14 +56,19 @@ namespace WebApplication.Controllers
                 return this.BadRequest();
             }*/
 
-            var creationResult = await this.userManager.CreateAsync(user);
+            var creationResult = await this.userManager.CreateAsync(new IdentityUser
+            {
+                UserName = name,
+                EmailAddress = email,
+                PhoneNumber = phone
+            });
 
             if (!creationResult.Succeeded)
             {
                 return this.BadRequest(creationResult.Errors);
             }
 
-            return this.Created("~api/User/AddUser", user.UserName);
+            return this.Created("~api/User/AddUser", name);
         }
 
         [HttpDelete]
@@ -85,7 +92,7 @@ namespace WebApplication.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<ApplicationUser>> UpdateUser(string name, string newUserName)
+        public async Task<ActionResult<IdentityUser>> UpdateUser(string name, string newUserName)
         {
             var user = await this.userManager.FindByNameAsync(name);
 

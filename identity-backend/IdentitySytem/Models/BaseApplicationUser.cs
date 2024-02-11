@@ -3,23 +3,50 @@ using System;
 
 namespace IdentitySystem.Models
 {
+    public abstract class BaseApplicationUser<TKey> : IApplicationUser<TKey>
+        where TKey : IEquatable<TKey>
+    {
+        public virtual TKey ID { get; set; }
+
+        public virtual string UserName { get; set; }
+
+        public virtual string NormalizedUserName { get; set; }
+
+        public virtual string EmailAddress { get; set; }
+
+        public virtual string NormalizedEmailAddress { get; set; }
+
+        public virtual bool IsEmailAddressConfirmed { get; set; }
+
+        public virtual string PhoneNumber { get; set; }
+
+        public virtual bool IsPhoneNumberConfirmed { get; set; }
+
+        public BaseApplicationUser() { }
+
+        public BaseApplicationUser(string userName)
+        {
+            this.UserName = userName;
+        }
+    }
+
     public abstract class BaseApplicationUser : IApplicationUser<string>
     {
-        public string ID { get; set; }
+        public virtual string ID { get; set; }
 
-        public string UserName { get; set; }
+        public virtual string UserName { get; set; }
 
-        public string NormalizedUserName { get; set; }
+        public virtual string NormalizedUserName { get; set; }
 
-        public string EmailAddress { get; set; }
+        public virtual string EmailAddress { get; set; }
 
-        public string NormalizedEmailAddress { get; set; }
+        public virtual string NormalizedEmailAddress { get; set; }
 
-        public bool IsEmailAddressConfirmed { get; set; }
+        public virtual bool IsEmailAddressConfirmed { get; set; }
 
-        public string PhoneNumber { get; set; }
+        public virtual string PhoneNumber { get; set; }
 
-        public bool IsPhoneNumberConfirmed { get; set; }
+        public virtual bool IsPhoneNumberConfirmed { get; set; }
 
         public BaseApplicationUser() { }
 
