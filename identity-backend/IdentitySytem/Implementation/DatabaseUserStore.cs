@@ -9,7 +9,11 @@ using System.Threading.Tasks;
 
 namespace IdentitySystem.Implementation
 {
-    public class DatabaseUserStore<TUser, TKey, TContext> : IUserStore<TUser>, IQueryableUserStore<TUser>
+    public class DatabaseUserStore<TUser, TKey, TContext> : 
+        IUserStore<TUser>, 
+        IQueryableUserStore<TUser>, 
+        IUserEmailStore<TUser>,
+        IUserPhoneNumberStore<TUser>
         where TKey : IEquatable<TKey>
         where TContext: DbContext
         where TUser: BaseApplicationUser<TKey>, new()
@@ -32,6 +36,8 @@ namespace IdentitySystem.Implementation
             this.disposed = false;
             this.context = context;
         }
+
+        #region IUserStore Implementation
 
         public virtual async Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default)
         {
@@ -129,6 +135,109 @@ namespace IdentitySystem.Implementation
 
             return IdentityResult.Success;
         }
+
+        #endregion
+
+        #region IUserEmailStore and IUserPhoneStore Implementation
+
+        public virtual Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            this.ThrowIfDisposed();
+            ArgumentNullException.ThrowIfNull(user);
+
+            user.PhoneNumber = phoneNumber;
+            return Task.CompletedTask;
+        }
+
+        public virtual Task<string> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+
+            return Task.FromResult(user.PhoneNumber);
+        }
+
+        public virtual Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+
+            return Task.FromResult(user.IsPhoneNumberConfirmed);
+        }
+
+        public virtual Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+
+            user.IsPhoneNumberConfirmed = confirmed;
+            return Task.CompletedTask;
+        }
+
+        public virtual Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+            ArgumentNullException.ThrowIfNullOrEmpty(email);
+
+            user.EmailAddress = email;
+            return Task.CompletedTask;
+        }
+
+        public virtual Task<string> GetEmailAsync(TUser user, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+
+            return Task.FromResult(user.EmailAddress);
+        }
+
+        public virtual Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+
+            return Task.FromResult(user.IsEmailAddressConfirmed);
+        }
+
+        public virtual Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+
+            user.IsEmailAddressConfirmed = confirmed;
+            return Task.CompletedTask;
+        }
+
+        public virtual Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNullOrEmpty(normalizedEmail);
+
+            var findByEmailTask = this.GetSet().FirstOrDefaultAsync(user => user.NormalizedEmailAddress == normalizedEmail);
+            return findByEmailTask;
+        }
+
+        public virtual Task<string> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+
+            return Task.FromResult(user.NormalizedUserName);
+        }
+
+        public virtual Task SetNormalizedEmailAsync(TUser user, string normalizedEmail, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user);
+            ArgumentNullException.ThrowIfNullOrEmpty(normalizedEmail);
+
+            user.NormalizedEmailAddress = normalizedEmail;
+            return Task.CompletedTask;
+        }
+
+        #endregion
 
         public void Dispose()
         {

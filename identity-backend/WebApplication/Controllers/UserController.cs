@@ -101,6 +101,7 @@ namespace WebApplication.Controllers
                 return this.BadRequest();
             }
 
+            user.UserName = newUserName;
             var creationResult = await this.userManager.UpdateAsync(user);
 
             if (!creationResult.Succeeded)
