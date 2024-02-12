@@ -11,16 +11,20 @@ namespace WebApplication.Database
 
         public DbSet<IdentityUser> Users { get; set; }
 
-        public DatabaseContext(IOptionsMonitor<ConnectionStringOptions> connectionOptions) 
-        {
-            this.connectionStringOptions = connectionOptions.CurrentValue;
-        }
+        public DbSet<IdentityUserClaim> Claims { get; set; }
+
+
+        // public DatabaseContext(DbContextOptions<DatabaseContext> options) :base(options) { }
+        /* public DatabaseContext(IOptionsMonitor<ConnectionStringOptions> connectionOptions) 
+         {
+             this.connectionStringOptions = connectionOptions.CurrentValue;
+         }*/
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
 
-            optionsBuilder.UseSqlServer(connectionString: this.connectionStringOptions.ConnectionString, 
+            optionsBuilder.UseSqlServer(connectionString: "Server=localhost;Database=CustomIdentity;Trusted_Connection=True;TrustServerCertificate=True;", 
                 sql => sql.MigrationsAssembly(typeof(DatabaseContext).Assembly.FullName));
         }
     }

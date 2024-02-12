@@ -19,6 +19,7 @@ using WebApplication.Infrastructure;
 using IdentityDataAccessLayer.Models;
 using WebApplication.Database;
 using IdentityDataAccessLayer.Extensions;
+using IdentitySystem.Models;
 
 namespace WebApplication.Startups
 {
@@ -55,7 +56,7 @@ namespace WebApplication.Startups
             services.AddDataProtection();
 
             services.AddIdentityDataAccess();
-            services.AddDatabaseStores<IdentityUser, Guid, DatabaseContext>();
+            services.AddDatabaseStores<IdentityUser, IdentityUserClaim, Guid, DatabaseContext>();
 
             services.AddAuthentication(options =>
             {

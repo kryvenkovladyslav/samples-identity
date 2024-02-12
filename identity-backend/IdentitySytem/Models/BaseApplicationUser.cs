@@ -1,9 +1,11 @@
 ﻿using IdentitySystem.Abstract;
 using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace IdentitySystem.Models
 {
-    public abstract class BaseApplicationUser<TKey> : IApplicationUser<TKey>
+    public class BaseApplicationUser<TKey> : IApplicationUser<TKey>
         where TKey : IEquatable<TKey>
     {
         public virtual TKey ID { get; set; }
@@ -19,8 +21,10 @@ namespace IdentitySystem.Models
         public virtual bool IsEmailAddressConfirmed { get; set; }
 
         public virtual string PhoneNumber { get; set; }
-
         public virtual bool IsPhoneNumberConfirmed { get; set; }
+
+        //public virtual ICollection<BaseApplicationUserClaim<Guid>> Claims { get; set; }
+
 
         public BaseApplicationUser() { }
 
