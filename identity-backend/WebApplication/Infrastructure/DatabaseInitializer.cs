@@ -28,7 +28,7 @@ namespace WebApplication.Infrastructure
         {
             var databaseSeed = serviceProvider.GetRequiredService<IOptions<SeedUsersOptions>>().Value;
 
-            var user = context.Users.FirstOrDefault(user => user.UserName == databaseSeed.UserName);
+            var user = context.Set<IdentityUser>().FirstOrDefault(user => user.UserName == databaseSeed.UserName);
 
             if(user != null)
             {
@@ -45,7 +45,7 @@ namespace WebApplication.Infrastructure
                 PhoneNumber = databaseSeed.PhoneNumber,
                 IsPhoneNumberConfirmed = databaseSeed.IsPhoneNumberConfirmed
             };
-            context.Users.Add(s);
+            context.Set<IdentityUser>().Add(s);
             context.SaveChanges();
         }
     }

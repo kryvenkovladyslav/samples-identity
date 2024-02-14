@@ -72,7 +72,7 @@ namespace WebApplication.Startups
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            DatabaseInitializer.Initialize(app);
+            //DatabaseInitializer.Initialize(app);
 
             app.UseSwagger();
             app.UseSwaggerUI();
