@@ -4,8 +4,6 @@
     {
         public static string TableName { get; private set; } = "IdentityUser";
 
-        public static string ID { get; private set; } = nameof(ID);
-
         public static string UserName { get; private set; } = nameof(UserName);
 
         public static string NormalizedUserName { get; private set; } = nameof(NormalizedUserName);

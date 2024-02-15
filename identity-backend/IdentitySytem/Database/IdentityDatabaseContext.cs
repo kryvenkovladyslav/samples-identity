@@ -15,7 +15,6 @@ namespace IdentitySystem.Database
 
         public virtual DbSet<TUserClaim> UserClaims { get; set; }
 
-
         public IdentityDatabaseContext() { }
 
         public IdentityDatabaseContext(DbContextOptions options) : base(options) { }

@@ -13,7 +13,7 @@ namespace IdentitySystem.Database.Configuration.User
         {
             var userTable = builder.ToTable(ApplicationUserConfigurationDefaults.TableName);
 
-            userTable.HasKey(user => user.ID).HasName(ApplicationUserConfigurationDefaults.ID);
+            userTable.HasKey(user => user.ID);
 
             userTable.Property(user => user.UserName)
                 .HasColumnName(ApplicationUserConfigurationDefaults.UserName)

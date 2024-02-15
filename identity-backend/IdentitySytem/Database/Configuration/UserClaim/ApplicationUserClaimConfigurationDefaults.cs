@@ -4,8 +4,6 @@
     {
         public static string TableName { get; private set; } = "IdentityUserClaim";
 
-        public static string ID { get; private set; } = nameof(ID);
-
         public static string UserID { get; private set; } = nameof(UserID);
 
         public static string ClaimType { get; private set; } = nameof(ClaimType);

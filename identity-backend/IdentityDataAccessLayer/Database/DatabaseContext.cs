@@ -11,7 +11,6 @@ namespace WebApplication.Database
     {
         private readonly ConnectionStringOptions connectionStringOptions;
 
-
         public DatabaseContext()  { }
 
          public DatabaseContext(IOptionsMonitor<ConnectionStringOptions> connectionOptions) 
@@ -28,7 +27,7 @@ namespace WebApplication.Database
         {
             base.OnConfiguring(optionsBuilder);
 
-            optionsBuilder.UseSqlServer(connectionString: "Server=localhost;Database=CustomIdentityCustom;Trusted_Connection=True;TrustServerCertificate=True;", 
+            optionsBuilder.UseSqlServer(connectionString: "Server=localhost;Database=IdentityCustomDatabase;Trusted_Connection=True;TrustServerCertificate=True;", 
                 sql => sql.MigrationsAssembly(typeof(DatabaseContext).Assembly.FullName));
         }
     }

@@ -14,7 +14,7 @@ namespace IdentitySystem.Database.Configuration.UserClaim
         {
             var userClaimTable = builder.ToTable(ApplicationUserClaimConfigurationDefaults.TableName);
 
-            userClaimTable.HasKey(userClaim => userClaim.ID).HasName(ApplicationUserClaimConfigurationDefaults.ID);
+            userClaimTable.HasKey(userClaim => userClaim.ID);
 
             userClaimTable.Property(userClaim => userClaim.UserID)
                 .HasColumnName(ApplicationUserClaimConfigurationDefaults.UserID)

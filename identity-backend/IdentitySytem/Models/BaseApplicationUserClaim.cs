@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace IdentitySystem.Models
 {
-    public class BaseApplicationUserClaim<TKey> : IApplicationUserClaim<TKey>
+    public class BaseApplicationUserClaim<TKey> 
         where TKey : IEquatable<TKey>
     {
         public virtual TKey ID { get; set; }
