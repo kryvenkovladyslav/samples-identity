@@ -23,12 +23,10 @@ namespace IdentitySystem.Database.Configuration.UserClaim
 
             userClaimTable.Property(userClaim => userClaim.ClaimValue)
                .HasColumnName(ApplicationUserClaimConfigurationDefaults.ClaimValue)
-               .HasColumnType(SqlServerTypes.String)
                .IsRequired(true);
 
             userClaimTable.Property(userClaim => userClaim.ClaimType)
                .HasColumnName(ApplicationUserClaimConfigurationDefaults.ClaimType)
-               .HasColumnType(SqlServerTypes.String)
                .IsRequired(true);
 
             userClaimTable.HasOne<TUser>().WithMany().HasForeignKey(u => u.UserID).HasPrincipalKey(user => user.ID);

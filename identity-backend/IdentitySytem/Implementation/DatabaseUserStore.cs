@@ -307,11 +307,14 @@ namespace IdentitySystem.Implementation
             ArgumentNullException.ThrowIfNull(user, nameof(user));
             ArgumentNullException.ThrowIfNull(claims, nameof(claims));
 
-            var requiredClaims = await this.GetSet<TUserClaim>()
-                .Where(userClaim => claims.Any(claim => claim.Value == userClaim.ClaimValue && claim.Type == userClaim.ClaimType) && userClaim.UserID.Equals(user.ID))
-                .ToListAsync(cancellationToken);
+            foreach (var currentClaim in claims)
+            {
+                var requiredClaims = await this.GetSet<TUserClaim>()
+                    .FirstOrDefaultAsync(userClaim => userClaim.UserID.Equals(user.ID) && 
+                    userClaim.ClaimValue == currentClaim.Value && userClaim.ClaimType == currentClaim.Type);
 
-            this.GetSet<TUserClaim>().RemoveRange(requiredClaims);
+                this.GetSet<TUserClaim>().Remove(requiredClaims);
+            }
         }
 
         public async virtual Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken = default)

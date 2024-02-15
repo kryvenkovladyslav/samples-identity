@@ -16,13 +16,13 @@ namespace IdentityDataAccessLayer.Migrations
                 columns: table => new
                 {
                     ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserName = table.Column<string>(type: "NVARCHAR", nullable: false),
-                    NormalizedUserName = table.Column<string>(type: "NVARCHAR", nullable: false),
-                    EmailAddress = table.Column<string>(type: "NVARCHAR", nullable: false),
-                    NormalizedEmailAddress = table.Column<string>(type: "NVARCHAR", nullable: false),
-                    IsEmailAddressConfirmed = table.Column<string>(type: "NVARCHAR(1)", nullable: false, defaultValue: "0"),
-                    PhoneNumber = table.Column<string>(type: "NVARCHAR", nullable: false),
-                    IsPhoneNumberConfirmed = table.Column<bool>(type: "BIT", nullable: false, defaultValue: false)
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NormalizedEmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsEmailAddressConfirmed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsPhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -35,8 +35,8 @@ namespace IdentityDataAccessLayer.Migrations
                 {
                     ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserID = table.Column<Guid>(type: "UNIQUEIDENTIFIER", nullable: false),
-                    ClaimType = table.Column<string>(type: "NVARCHAR", nullable: false),
-                    ClaimValue = table.Column<string>(type: "NVARCHAR", nullable: false)
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -12,7 +12,7 @@ using WebApplication.Database;
 namespace IdentityDataAccessLayer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240215184336_Initial")]
+    [Migration("20240215185601_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -33,40 +33,39 @@ namespace IdentityDataAccessLayer.Migrations
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("EmailAddress");
 
-                    b.Property<string>("IsEmailAddressConfirmed")
-                        .IsRequired()
+                    b.Property<bool>("IsEmailAddressConfirmed")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NVARCHAR")
-                        .HasDefaultValue("0")
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
                         .HasColumnName("IsEmailAddressConfirmed");
 
                     b.Property<bool>("IsPhoneNumberConfirmed")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("BIT")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("IsPhoneNumberConfirmed");
 
                     b.Property<string>("NormalizedEmailAddress")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("NormalizedEmailAddress");
 
                     b.Property<string>("NormalizedUserName")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("NormalizedUserName");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("PhoneNumber");
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("UserName");
 
                     b.HasKey("ID");
@@ -82,12 +81,12 @@ namespace IdentityDataAccessLayer.Migrations
 
                     b.Property<string>("ClaimType")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("ClaimType");
 
                     b.Property<string>("ClaimValue")
                         .IsRequired()
-                        .HasColumnType("NVARCHAR")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("ClaimValue");
 
                     b.Property<Guid>("UserID")

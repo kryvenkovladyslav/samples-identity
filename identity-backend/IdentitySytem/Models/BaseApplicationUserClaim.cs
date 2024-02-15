@@ -1,10 +1,9 @@
 ﻿using IdentitySystem.Abstract;
 using System;
-using System.Security.Claims;
 
 namespace IdentitySystem.Models
 {
-    public class BaseApplicationUserClaim<TKey> 
+    public class BaseApplicationUserClaim<TKey> : IApplicationUserClaim<TKey>   
         where TKey : IEquatable<TKey>
     {
         public virtual TKey ID { get; set; }
