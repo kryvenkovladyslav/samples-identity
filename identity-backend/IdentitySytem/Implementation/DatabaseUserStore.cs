@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -11,22 +10,20 @@ using System.Threading.Tasks;
 
 namespace IdentitySystem.Implementation
 {
-    public class DatabaseUserStore<TUser,TUserClaim, TKey, TContext> : 
+    public class DatabaseUserStore<TUser, TRole, TUserRole, TUserClaim, TKey, TContext> : DatabaseStore<TContext>,
         IUserStore<TUser>, 
+        IUserRoleStore<TUser>,
         IUserClaimStore<TUser>,
-        IQueryableUserStore<TUser>, 
         IUserEmailStore<TUser>,
+        IQueryableUserStore<TUser>, 
         IUserPhoneNumberStore<TUser>
+        where TContext : DbContext
         where TKey : IEquatable<TKey>
+        where TUser : BaseApplicationUser<TKey>, new()
+        where TRole : BaseApplicationRole<TKey>, new()
+        where TUserRole : BaseApplicationUserRole<TKey>, new()
         where TUserClaim: BaseApplicationUserClaim<TKey>, new()
-        where TContext: DbContext
-        where TUser: BaseApplicationUser<TKey>, new()
-
     {
-        private bool disposed;
-
-        private readonly TContext context;
-
         public IQueryable<TUser> Users
         {
             get
@@ -35,11 +32,7 @@ namespace IdentitySystem.Implementation
             }
         }
 
-        public DatabaseUserStore(TContext context) 
-        {
-            this.disposed = false;
-            this.context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        public DatabaseUserStore(TContext context) : base(context) { }
 
         #region IUserStore Implementation
 
@@ -72,7 +65,7 @@ namespace IdentitySystem.Implementation
             cancellationToken.ThrowIfCancellationRequested();
             this.ThrowIfDisposed();
 
-            var id = this.ConvertIdentifierFromString(userId);
+            var id = this.ConvertIdentifierFromString<TKey>(userId);
             return this.GetSet<TUser>().FindAsync(new object[] { id }, cancellationToken).AsTask();
         }
 
@@ -333,49 +326,108 @@ namespace IdentitySystem.Implementation
 
         #endregion
 
-        public void Dispose()
+        #region IRoleStore Implementation
+
+        public virtual async Task AddToRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default)
         {
-            if(this.disposed)
+            cancellationToken.ThrowIfCancellationRequested();
+
+            this.ThrowIfDisposed();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+            ArgumentNullException.ThrowIfNullOrEmpty(roleName, nameof(roleName));
+
+            var role = await this.GetSet<TRole>().SingleOrDefaultAsync(role => role.Name.ToUpper() == roleName.ToUpper(), cancellationToken);
+
+            if (role == null)
             {
-                return;
+                throw new ArgumentNullException(nameof(role));
             }
 
-            this.context.Dispose();
-            this.disposed = true;
+            var userRole = new TUserRole
+            {
+                UserID = user.ID,
+                RoleID = role.ID
+            };
+
+            this.GetSet<TUserRole>().Add(userRole);
         }
 
-        protected virtual TKey ConvertIdentifierFromString(string id)
+        public virtual async Task RemoveFromRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default)
         {
-            if (id == null)
+            cancellationToken.ThrowIfCancellationRequested();
+
+            this.ThrowIfDisposed();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+            ArgumentNullException.ThrowIfNullOrEmpty(roleName, nameof(roleName));
+
+            var role = await this.GetSet<TRole>().SingleOrDefaultAsync(role => role.Name.ToUpper() == roleName.ToUpper(), cancellationToken);
+
+            if (role == null)
             {
-                return default(TKey);
+                throw new ArgumentNullException(nameof(role));
             }
 
-            return (TKey)TypeDescriptor.GetConverter(typeof(TKey)).ConvertFromInvariantString(id);
+            var userRole = await this.GetSet<TUserRole>()
+                .SingleOrDefaultAsync(userRole => userRole.RoleID.Equals(role.ID) && userRole.UserID.Equals(user.ID), cancellationToken);
+
+            this.GetSet<TUserRole>().Remove(userRole);
         }
 
-        protected virtual string ConvertIdentifierToString(TKey id)
+        public virtual async Task<IList<string>> GetRolesAsync(TUser user, CancellationToken cancellationToken = default)
         {
-            return TypeDescriptor.GetConverter(typeof(string)).ConvertToInvariantString(id);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            this.ThrowIfDisposed();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+
+            var roleIdentifiers = await this.GetSet<TUserRole>()
+                .Where(userRole => userRole.UserID.Equals(user.ID))
+                .Select(userRole => userRole.RoleID)
+                .ToListAsync(cancellationToken);
+
+            var roles = await this.GetSet<TRole>()
+                .Where(role => roleIdentifiers.Contains(role.ID))
+                .Select(role => role.Name)
+                .ToListAsync(cancellationToken);
+
+            return roles;
         }
 
-        protected async virtual Task SaveChangesAsync(CancellationToken token = default)
+        public virtual async Task<bool> IsInRoleAsync(TUser user, string roleName, CancellationToken cancellationToken = default)
         {
-            await this.context.SaveChangesAsync(token);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            this.ThrowIfDisposed();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+
+            var role = await this.GetSet<TRole>().FirstOrDefaultAsync(role => role.Name.ToUpper() == roleName.ToUpper(), cancellationToken);
+
+            var users = await this.GetSet<TUserRole>()
+                .Where(userRole => userRole.RoleID.Equals(role.ID) && userRole.UserID.Equals(user.ID))
+                .ToListAsync(cancellationToken);
+
+            return await Task.FromResult(users.Count > 0);
         }
 
-        protected virtual void ThrowIfDisposed()
+        public virtual async Task<IList<TUser>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken = default)
         {
-            if (this.disposed)
-            {
-                throw new ObjectDisposedException(this.GetType().Name);
+            cancellationToken.ThrowIfCancellationRequested();
 
-            }
+            this.ThrowIfDisposed();
+            ArgumentNullException.ThrowIfNullOrEmpty(roleName, nameof(roleName));
+
+            var role = await this.GetSet<TRole>().FirstOrDefaultAsync(role => role.Name.ToUpper() == roleName.ToUpper(), cancellationToken);
+
+            var userRoles = await this.GetSet<TUserRole>()
+                .Where(userRole => userRole.RoleID.Equals(role.ID))
+                .Select(userRole => userRole.UserID)
+                .ToListAsync(cancellationToken);
+
+            var users = await this.GetSet<TUser>().Where(user => userRoles.Contains(user.ID)).ToListAsync(cancellationToken);
+
+            return users;
         }
 
-        private DbSet<TEntity> GetSet<TEntity>() where TEntity: class
-        {
-            return this.context.Set<TEntity>();
-        }
+        #endregion
     }
 }

@@ -1,17 +1,27 @@
-﻿using IdentitySystem.Abstract;
-using System;
+﻿using System;
 
 namespace IdentitySystem.Models
 {
-    public class BaseApplicationUserClaim<TKey> : IApplicationUserClaim<TKey>   
+    /// <summary>
+    /// Represents a current claim for Identity user
+    /// </summary>
+    /// <typeparam name="TKey">The type representing an identifier for current entity</typeparam>
+    public class BaseApplicationUserClaim<TKey> : BaseApplicationEntity<TKey> 
         where TKey : IEquatable<TKey>
     {
-        public virtual TKey ID { get; set; }
-
+        /// <summary>
+        /// Represents a user identifier
+        /// </summary>
         public virtual TKey UserID { get; set; }
 
+        /// <summary>
+        /// Represents a type of a current claim 
+        /// </summary>
         public virtual string ClaimType { get; set; }
 
+        /// <summary>
+        /// Represents a value of current claim type
+        /// </summary>
         public virtual string ClaimValue { get; set; }
     }
 }

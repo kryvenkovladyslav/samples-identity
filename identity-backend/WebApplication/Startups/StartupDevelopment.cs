@@ -29,6 +29,7 @@ namespace WebApplication.Startups
 
         public StartupDevelopment(IConfiguration configuration)
         {
+            
             this.Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
@@ -56,7 +57,7 @@ namespace WebApplication.Startups
             services.AddDataProtection();
 
             services.AddIdentityDataAccess();
-            services.AddDatabaseStores<IdentityUser, IdentityUserClaim, Guid, DatabaseContext>();
+            services.AddDatabaseStores<IdentityUser, IdentityRole, IdentityUserRole, IdentityUserClaim, Guid, DatabaseContext>();
 
             services.AddAuthentication(options =>
             {

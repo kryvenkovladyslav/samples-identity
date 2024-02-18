@@ -12,15 +12,17 @@ namespace IdentitySystem.Extensions
 {
     public static class IServiceCollectionExtensions
     {
-        public static IServiceCollection AddDatabaseStores<TUser, TUseClaim, TKey, TContext>(this IServiceCollection services)
+        public static IServiceCollection AddDatabaseStores<TUser, TRole, TUserRole, TUseClaim, TKey, TContext>(this IServiceCollection services)
             where TContext : DbContext
             where TKey : IEquatable<TKey>
+            where TRole : BaseApplicationRole<TKey>, new()
+            where TUserRole : BaseApplicationUserRole<TKey>, new()
             where TUser : BaseApplicationUser<TKey>, new()
             where TUseClaim: BaseApplicationUserClaim<TKey>, new()
         {
             var userIdentifierType = typeof(TUser).BaseType.GetGenericArguments()[0];
 
-            var userStoreType = typeof(DatabaseUserStore<,,,>).MakeGenericType(typeof(TUser), typeof(TUseClaim), typeof(TKey), typeof(TContext));
+            var userStoreType = typeof(DatabaseUserStore<,,,,,>).MakeGenericType(typeof(TUser), typeof(TRole), typeof(TUserRole), typeof(TUseClaim), typeof(TKey), typeof(TContext));
 
             services.TryAddScoped(typeof(IUserStore<TUser>), userStoreType);
             services.AddIdentityCore<TUser>();

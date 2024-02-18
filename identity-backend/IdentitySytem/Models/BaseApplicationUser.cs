@@ -1,36 +1,71 @@
 ﻿using IdentitySystem.Abstract;
 using System;
-using System.Collections.Generic;
-using System.Security.Claims;
 
 namespace IdentitySystem.Models
 {
-    public class BaseApplicationUser<TKey> : IApplicationUser<TKey>
+    /// <summary>
+    /// Represents a user for Identity System
+    /// </summary>
+    /// <typeparam name="TKey">The type representing an identifier for current entity</typeparam>
+    public class BaseApplicationUser<TKey> : BaseApplicationEntity<TKey>
         where TKey : IEquatable<TKey>
     {
-        public virtual TKey ID { get; set; }
-
+        /// <summary>
+        /// Represents a name of a current user
+        /// </summary>
         public virtual string UserName { get; set; }
 
+        /// <summary>
+        /// Represents a normalized name of a current user
+        /// </summary>
         public virtual string NormalizedUserName { get; set; }
 
+        /// <summary>
+        /// Represents a email of a current user
+        /// </summary>
         public virtual string EmailAddress { get; set; }
 
+        /// <summary>
+        /// Represents a normalized email of a current user
+        /// </summary>
         public virtual string NormalizedEmailAddress { get; set; }
 
+        /// <summary>
+        /// Represents a property that indicates if the user's email confirmed 
+        /// </summary>
         public virtual bool IsEmailAddressConfirmed { get; set; }
 
+        /// <summary>
+        /// Represents a phone number of a current user
+        /// </summary>
         public virtual string PhoneNumber { get; set; }
+
+        /// <summary>
+        /// Represents a property that indicates if the user's phone number confirmed 
+        /// </summary>
         public virtual bool IsPhoneNumberConfirmed { get; set; }
 
-        //public virtual ICollection<BaseApplicationUserClaim<Guid>> Claims { get; set; }
-
-
+        /// <summary>
+        /// The default constructor is used to create an object
+        /// </summary>
         public BaseApplicationUser() { }
 
+        /// <summary>
+        /// The default constructor is used to create an object using name
+        /// </summary>
+        /// <param name="userName">The name of a current user</param>
         public BaseApplicationUser(string userName)
         {
             this.UserName = userName;
+        }
+
+        /// <summary>
+        /// Overridden method for returning a name of a current user
+        /// </summary>
+        /// <returns>The name of a current user</returns>
+        public override string ToString()
+        {
+            return this.UserName ?? string.Empty;
         }
     }
 

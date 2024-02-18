@@ -22,6 +22,29 @@ namespace IdentityDataAccessLayer.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("IdentityDataAccessLayer.Models.IdentityRole", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("IdentityRole", (string)null);
+                });
+
             modelBuilder.Entity("IdentityDataAccessLayer.Models.IdentityUser", b =>
                 {
                     b.Property<Guid>("ID")
@@ -97,6 +120,39 @@ namespace IdentityDataAccessLayer.Migrations
                     b.ToTable("IdentityUserClaim", (string)null);
                 });
 
+            modelBuilder.Entity("IdentitySystem.Models.BaseApplicationUserRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(34)
+                        .HasColumnType("nvarchar(34)");
+
+                    b.HasKey("UserID", "RoleID");
+
+                    b.ToTable("IdentityUserRole", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BaseApplicationUserRole<Guid>");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("IdentityDataAccessLayer.Models.IdentityUserRole", b =>
+                {
+                    b.HasBaseType("IdentitySystem.Models.BaseApplicationUserRole<System.Guid>");
+
+                    b.HasIndex("RoleID");
+
+                    b.ToTable("IdentityUserRole", (string)null);
+
+                    b.HasDiscriminator().HasValue("IdentityUserRole");
+                });
+
             modelBuilder.Entity("IdentityDataAccessLayer.Models.IdentityUserClaim", b =>
                 {
                     b.HasOne("IdentityDataAccessLayer.Models.IdentityUser", null)
@@ -104,6 +160,25 @@ namespace IdentityDataAccessLayer.Migrations
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("IdentityDataAccessLayer.Models.IdentityUserRole", b =>
+                {
+                    b.HasOne("IdentityDataAccessLayer.Models.IdentityRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IdentityDataAccessLayer.Models.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
