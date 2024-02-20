@@ -44,6 +44,28 @@ namespace WebApplication.Controllers
             return this.Ok(await this.userManager.FindByNameAsync(name));
         }
 
+        [HttpPut]
+        public async Task<ActionResult<IdentityUser>> UpdateEmail(string email, string newEmail)
+        {
+            var requiredUser = await this.userManager.FindByEmailAsync(email);
+
+            if(requiredUser == null)
+            {
+                return this.BadRequest("The user wasn't found");
+            }
+
+            requiredUser.EmailAddress = newEmail;
+            var result = await this.userManager.UpdateAsync(requiredUser);
+            await this.userManager.UpdateSecurityStampAsync(requiredUser);
+
+            if (!result.Succeeded)
+            {
+                return this.BadRequest(result.Errors);
+            }
+
+            return this.Ok(result);
+        }
+
         [HttpPost]
         public async Task<ActionResult<IdentityUser>> AddUser(string name, string email, string phone)
         {

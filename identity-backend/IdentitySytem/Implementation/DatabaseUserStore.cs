@@ -16,7 +16,8 @@ namespace IdentitySystem.Implementation
         IUserClaimStore<TUser>,
         IUserEmailStore<TUser>,
         IQueryableUserStore<TUser>, 
-        IUserPhoneNumberStore<TUser>
+        IUserPhoneNumberStore<TUser>,
+        IUserSecurityStampStore<TUser>
         where TContext : DbContext
         where TKey : IEquatable<TKey>
         where TUser : BaseApplicationUser<TKey>, new()
@@ -426,6 +427,30 @@ namespace IdentitySystem.Implementation
             var users = await this.GetSet<TUser>().Where(user => userRoles.Contains(user.ID)).ToListAsync(cancellationToken);
 
             return users;
+        }
+
+        #endregion
+
+        #region IUserSecurityStampStore Implementation
+
+        public Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            this.ThrowIfDisposed();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+            ArgumentNullException.ThrowIfNullOrEmpty(stamp, nameof(stamp));
+
+            user.SecurityStamp = stamp;
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            this.ThrowIfDisposed();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+
+            return Task.FromResult(user.SecurityStamp);
         }
 
         #endregion

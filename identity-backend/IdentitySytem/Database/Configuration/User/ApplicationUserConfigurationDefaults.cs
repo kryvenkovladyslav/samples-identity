@@ -17,5 +17,7 @@
         public static string PhoneNumber { get; private set; } = nameof(PhoneNumber);
 
         public static string IsPhoneNumberConfirmed { get; private set; } = nameof(IsPhoneNumberConfirmed);
+
+        public static string SecurityStamp { get; private set; } = nameof(SecurityStamp);
     }
 }

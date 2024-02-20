@@ -1,4 +1,7 @@
-﻿using IdentitySystem.Implementation;
+﻿using IdentitySystem.Abstract;
+using IdentitySystem.ConfirmationServices;
+using IdentitySystem.TokenProviders;
+using IdentitySystem.Implementation;
 using IdentitySystem.Models;
 using IdentitySystem.Stores;
 using IdentitySystem.Validation;
@@ -25,7 +28,26 @@ namespace IdentitySystem.Extensions
             var userStoreType = typeof(DatabaseUserStore<,,,,,>).MakeGenericType(typeof(TUser), typeof(TRole), typeof(TUserRole), typeof(TUseClaim), typeof(TKey), typeof(TContext));
 
             services.TryAddScoped(typeof(IUserStore<TUser>), userStoreType);
-            services.AddIdentityCore<TUser>();
+
+            services.AddIdentityCore<TUser>(options =>
+            {
+                options.Tokens.ChangePhoneNumberTokenProvider = TokenOptions.DefaultPhoneProvider;
+                options.Tokens.ChangeEmailTokenProvider = TokenOptions.DefaultEmailProvider;
+                options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+            })
+                .AddTokenProvider(TokenOptions.DefaultPhoneProvider, typeof(SMSSecurityTokenProvider<TUser, TKey>))
+                .AddTokenProvider(TokenOptions.DefaultEmailProvider, typeof(EmailSecurityTokenProvider<TUser, TKey>));
+
+            return services;
+        }
+
+        public static IServiceCollection AddConfirmationServices<TUser, TKey>(this IServiceCollection services)
+            where TKey : IEquatable<TKey>
+            where TUser : BaseApplicationUser<TKey>
+        {
+            services.TryAddScoped<ISMSConfirmationService<TUser, TKey>, SMSConfirmationService<TUser, TKey>>();
+            services.TryAddScoped<IEmailConfirmationService<TUser, TKey>, EmailConfirmationService<TUser, TKey>>();
+
             return services;
         }
 

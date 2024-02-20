@@ -46,6 +46,11 @@ namespace IdentitySystem.Models
         public virtual bool IsPhoneNumberConfirmed { get; set; }
 
         /// <summary>
+        /// A random value that must change whenever a users credentials change
+        /// </summary>
+        public virtual string SecurityStamp { get; set; }
+
+        /// <summary>
         /// The default constructor is used to create an object
         /// </summary>
         public BaseApplicationUser() { }
