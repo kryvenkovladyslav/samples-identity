@@ -15,20 +15,19 @@ namespace IdentitySystem.Extensions
 {
     public static class IServiceCollectionExtensions
     {
-        public static IServiceCollection AddDatabaseStores<TUser, TRole, TUserRole, TUseClaim, TKey, TContext>(this IServiceCollection services)
+        public static IServiceCollection AddEntityFrameworkStores<TUser, TRole, TUserRole, TUseClaim, TKey, TContext>(this IServiceCollection services)
             where TContext : DbContext
             where TKey : IEquatable<TKey>
-            where TRole : BaseApplicationRole<TKey>, new()
-            where TUserRole : BaseApplicationUserRole<TKey>, new()
-            where TUser : BaseApplicationUser<TKey>, new()
-            where TUseClaim: BaseApplicationUserClaim<TKey>, new()
+            where TUser : BaseApplicationUser<TKey>
+            where TRole : BaseApplicationRole<TKey>
+            where TUserRole : BaseApplicationUserRole<TKey>
+            where TUseClaim: BaseApplicationUserClaim<TKey>
         {
             var userIdentifierType = typeof(TUser).BaseType.GetGenericArguments()[0];
 
             var userStoreType = typeof(DatabaseUserStore<,,,,,>).MakeGenericType(typeof(TUser), typeof(TRole), typeof(TUserRole), typeof(TUseClaim), typeof(TKey), typeof(TContext));
 
             services.TryAddScoped(typeof(IUserStore<TUser>), userStoreType);
-
             services.AddIdentityCore<TUser>(options =>
             {
                 options.Tokens.ChangePhoneNumberTokenProvider = TokenOptions.DefaultPhoneProvider;
@@ -39,6 +38,24 @@ namespace IdentitySystem.Extensions
                 .AddTokenProvider(TokenOptions.DefaultEmailProvider, typeof(EmailSecurityTokenProvider<TUser, TKey>));
 
             return services;
+        }
+
+        public static IdentityBuilder AddTokenDefaultProviders(this IdentityBuilder builder)
+        {
+            var userType = builder.UserType;
+            var keyType = userType.BaseType.GetGenericArguments()[0];
+
+            var phoneTokenProvider = typeof(SMSSecurityTokenProvider<,>).MakeGenericType(userType, keyType);
+            var emailTokenProvider = typeof(EmailSecurityTokenProvider<,>).MakeGenericType(userType, keyType);
+            var defaultTokenProvider = typeof(DefaultSecurityTokenProvider<,>).MakeGenericType(userType, keyType);
+
+            
+
+            builder.AddTokenProvider(TokenOptions.DefaultProvider, defaultTokenProvider);
+            builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, phoneTokenProvider);
+            builder.AddTokenProvider(TokenOptions.DefaultEmailProvider, emailTokenProvider);
+
+            return builder;
         }
 
         public static IServiceCollection AddConfirmationServices<TUser, TKey>(this IServiceCollection services)

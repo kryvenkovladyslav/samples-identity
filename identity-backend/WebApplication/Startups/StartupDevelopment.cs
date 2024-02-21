@@ -58,7 +58,7 @@ namespace WebApplication.Startups
 
             services.AddIdentityDataAccess();
 
-            services.AddDatabaseStores<IdentityUser, IdentityRole, IdentityUserRole, IdentityUserClaim, Guid, DatabaseContext>();
+            services.AddEntityFrameworkStores<IdentityUser, IdentityRole, IdentityUserRole, IdentityUserClaim, Guid, DatabaseContext>();
             services.AddConfirmationServices<IdentityUser, Guid>();
 
             services.AddAuthentication(options =>
