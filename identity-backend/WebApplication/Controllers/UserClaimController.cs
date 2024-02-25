@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
 
 namespace WebApplication.Controllers
 {
@@ -13,21 +12,21 @@ namespace WebApplication.Controllers
     [Route("api/[controller]/[action]")]
     public class UserClaimController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public UserClaimController(UserManager<IdentityUser> userManager)
+        public UserClaimController(UserManager<ApplicationUser> userManager)
         {
             this.userManager = userManager;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<IdentityUserClaim>>> GetClaimsForUser(string userName)
+        public async Task<ActionResult<IEnumerable<ApplicationUserClaim>>> GetClaimsForUser(string userName)
         {
             var user = await this.userManager.FindByNameAsync(userName);
 
             if(user == null)
             {
-                return this.Ok(Enumerable.Empty<IdentityUserClaim>());
+                return this.Ok(Enumerable.Empty<ApplicationUserClaim>());
             }
 
             var claims = await this.userManager.GetClaimsAsync(user);
@@ -36,13 +35,13 @@ namespace WebApplication.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<IEnumerable<IdentityUserClaim>>> AddClaimForUser(string userName, string type, string value)
+        public async Task<ActionResult<IEnumerable<ApplicationUserClaim>>> AddClaimForUser(string userName, string type, string value)
         {
             var user = await this.userManager.FindByNameAsync(userName);
 
             if (user == null)
             {
-                return this.Ok(Enumerable.Empty<IdentityUserClaim>());
+                return this.Ok(Enumerable.Empty<ApplicationUserClaim>());
             }
 
             var claims = await this.userManager.AddClaimAsync(user, new Claim(type, value));
@@ -51,13 +50,13 @@ namespace WebApplication.Controllers
         }
 
         [HttpDelete]
-        public async Task<ActionResult<IEnumerable<IdentityUserClaim>>> DeleteClaimForUser(string userName, string type, string value)
+        public async Task<ActionResult<IEnumerable<ApplicationUserClaim>>> DeleteClaimForUser(string userName, string type, string value)
         {
             var user = await this.userManager.FindByNameAsync(userName);
 
             if (user == null)
             {
-                return this.Ok(Enumerable.Empty<IdentityUserClaim>());
+                return this.Ok(Enumerable.Empty<ApplicationUserClaim>());
             }
 
             var result = await this.userManager.RemoveClaimAsync(user, new Claim(type, value));

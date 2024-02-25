@@ -1,10 +1,11 @@
-﻿using IdentitySystem.Abstract;
+﻿using IdentityDataAccessLayer.Models;
+using IdentitySystem.Abstract;
+using IdentitySystem.Abstract.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using WebApplication.Models;
-using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
 
 namespace WebApplication.Controllers
 {
@@ -12,11 +13,11 @@ namespace WebApplication.Controllers
     [Route("/api/[controller]/[action]")]
     public class PasswordController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        private readonly ISMSConfirmationService<IdentityUser, Guid> confirmationService;
+        private readonly IPhoneNumberConfirmationService<ApplicationUser, Guid> confirmationService;
 
-        public PasswordController(UserManager<IdentityUser> userManager, ISMSConfirmationService<IdentityUser, Guid> confirmationService)
+        public PasswordController(UserManager<ApplicationUser> userManager, IPhoneNumberConfirmationService<ApplicationUser, Guid> confirmationService)
         {
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.confirmationService = confirmationService ?? throw new ArgumentNullException(nameof(confirmationService));

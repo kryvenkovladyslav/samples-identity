@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using IdentityDataAccessLayer.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
 
 namespace WebApplication.Controllers
 {
@@ -10,9 +10,9 @@ namespace WebApplication.Controllers
     [Route("/[controller]/[action]")]
     public sealed class UserRoleController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public UserRoleController(UserManager<IdentityUser> userManager)        {
+        public UserRoleController(UserManager<ApplicationUser> userManager)        {
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 

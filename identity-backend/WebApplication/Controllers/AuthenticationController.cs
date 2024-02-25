@@ -3,12 +3,9 @@ using System.Threading.Tasks;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using WebApplication.Infrastructure.Authentication;
-using WebApplication.Models;
 using Microsoft.AspNetCore.Identity;
-using IdentityDataAccessLayer.Models;
-using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
-using System.Collections.Generic;
 using System.Linq;
+using IdentityDataAccessLayer.Models;
 
 namespace WebApplication.Controllers
 {
@@ -18,11 +15,11 @@ namespace WebApplication.Controllers
     {
         private readonly string requiredParameter;
 
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
 
-        public AuthenticationController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AuthenticationController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;

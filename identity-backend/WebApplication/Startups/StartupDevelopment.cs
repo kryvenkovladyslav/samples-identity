@@ -8,15 +8,13 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Authorization;
 using WebApplication.Infrastructure.Authorization.Handlers;
 using WebApplication.Infrastructure.Authorization;
-using IdentitySystem.Extensions;
+using Identity.System.Extensions;
 using WebApplication.Infrastructure.Options;
 using WebApplication.Infrastructure.OptionSetup;
 using IdentityDataAccessLayer.Models;
 using WebApplication.Database;
 using IdentityDataAccessLayer.Extensions;
 using Microsoft.AspNetCore.Identity;
-using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
-using IdentityRole = IdentityDataAccessLayer.Models.IdentityRole;
 
 namespace WebApplication.Startups
 {
@@ -35,9 +33,6 @@ namespace WebApplication.Startups
             services.Configure<DefaultEmailValidationOptions>(this.Configuration.GetSection(DefaultEmailValidationOptions.Position));
             services.ConfigureOptions<DefaultEmailValidationOptionsSetup>();
 
-            services.Configure<ApplicationSeedUserOptions>(this.Configuration.GetSection(ApplicationSeedUserOptions.Position));
-            services.ConfigureOptions<ApplicationSeedUserOptionsSetup>();
-
             services.Configure<DefaultConnectionStringOptions>(this.Configuration.GetSection(DefaultConnectionStringOptions.Position));
             services.ConfigureOptions<DefaultConnectionStringOptionsSetup>();
 
@@ -55,9 +50,9 @@ namespace WebApplication.Startups
 
             services.AddIdentityDataAccess();
 
-            var managerType = typeof(SignInManager<>).MakeGenericType(typeof(IdentityUser));
+            var managerType = typeof(SignInManager<>).MakeGenericType(typeof(ApplicationUser));
             services.AddScoped(managerType);
-            services.AddCustomIdentitySystem<IdentityUser, IdentityRole, IdentityUserRole, IdentityUserClaim, Guid, DatabaseContext>();
+            services.AddCustomIdentitySystem<ApplicationUser, ApplicationRole, ApplicationUserRole, ApplicationUserClaim, Guid, DatabaseContext>();
 
 
             /* services.AddAuthentication(options =>

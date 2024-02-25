@@ -4,6 +4,6 @@
     {
         public static string Position { get; private set; } = nameof(DefaultEmailValidationOptions);
 
-        public string[] AllowedDomains { get; set; }
+        public string[] AllowedDomains { get; init; }
     }
 }

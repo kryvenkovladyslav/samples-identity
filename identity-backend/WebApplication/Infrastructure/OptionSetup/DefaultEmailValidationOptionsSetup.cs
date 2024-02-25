@@ -1,12 +1,11 @@
-﻿using IdentitySystem.Options;
+﻿using System.Collections.Generic;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
+using Identity.Abstract.Options;
 using WebApplication.Infrastructure.Options;
 
 namespace WebApplication.Infrastructure.OptionSetup
 {
-    public class DefaultEmailValidationOptionsSetup : IConfigureOptions<EmailValidationOptions>
+    public sealed class DefaultEmailValidationOptionsSetup : IConfigureOptions<IdentityEmailValidationOptions>
     {
         private readonly DefaultEmailValidationOptions defaultOption;
 
@@ -15,7 +14,7 @@ namespace WebApplication.Infrastructure.OptionSetup
             this.defaultOption = options.Value;
         }
 
-        public void Configure(EmailValidationOptions options)
+        public void Configure(IdentityEmailValidationOptions options)
         {
             options.AllowedDomains = new List<string>(defaultOption.AllowedDomains);
         }

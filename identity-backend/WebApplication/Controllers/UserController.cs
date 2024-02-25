@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using IdentityDataAccessLayer.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApplication.Models;
-using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace WebApplication.Controllers
@@ -14,15 +14,15 @@ namespace WebApplication.Controllers
     [Route("/api/[controller]/[action]")]
     public sealed class UserController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ApplicationUser> userManager;
         
-        public UserController(UserManager<IdentityUser> userManager)
+        public UserController(UserManager<ApplicationUser> userManager)
         {
             this.userManager = userManager;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<IdentityUser>> GetAllUsers()
+        public ActionResult<IEnumerable<ApplicationUser>> GetAllUsers()
         {
             return this.Ok(this.userManager.Users.ToList());
         }
@@ -34,19 +34,19 @@ namespace WebApplication.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IdentityUser>> FindByEmail(string email)
+        public async Task<ActionResult<ApplicationUser>> FindByEmail(string email)
         {
             return this.Ok(await this.userManager.FindByEmailAsync(email));
         }
 
         [HttpGet]
-        public async Task<ActionResult<IdentityUser>> FindByName(string name)
+        public async Task<ActionResult<ApplicationUser>> FindByName(string name)
         {
             return this.Ok(await this.userManager.FindByNameAsync(name));
         }
 
         [HttpPut]
-        public async Task<ActionResult<IdentityUser>> UpdateEmail(string email, string newEmail)
+        public async Task<ActionResult<ApplicationUser>> UpdateEmail(string email, string newEmail)
         {
             var requiredUser = await this.userManager.FindByEmailAsync(email);
 
@@ -68,7 +68,7 @@ namespace WebApplication.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<IdentityUser>> AddUser(string name, string email, string phone)
+        public async Task<ActionResult<ApplicationUser>> AddUser(string name, string email, string phone)
         {
             // This part of code can be deleted because UserManager takes over validation process
 
@@ -79,7 +79,7 @@ namespace WebApplication.Controllers
                 return this.BadRequest();
             }*/
 
-            var creationResult = await this.userManager.CreateAsync(new IdentityUser
+            var creationResult = await this.userManager.CreateAsync(new ApplicationUser
             {
                 UserName = name,
                 EmailAddress = email,
@@ -95,9 +95,9 @@ namespace WebApplication.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<IdentityUser>> AddUserModel([FromBody] UserAuthentication model)
+        public async Task<ActionResult<ApplicationUser>> AddUserModel([FromBody] UserAuthentication model)
         {
-            var creationResult = await this.userManager.CreateAsync(new IdentityUser
+            var creationResult = await this.userManager.CreateAsync(new ApplicationUser
             {
                 UserName = model.UserName,
                 Password = model.Password,
@@ -134,7 +134,7 @@ namespace WebApplication.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<IdentityUser>> UpdateUser(string name, string newUserName)
+        public async Task<ActionResult<ApplicationUser>> UpdateUser(string name, string newUserName)
         {
             var user = await this.userManager.FindByNameAsync(name);
 

@@ -1,13 +1,14 @@
-﻿using IdentityDataAccessLayer.Models;
+﻿using System;
+using Identity.System.Database;
+using IdentityDataAccessLayer.Models;
 using IdentityDataAccessLayer.Options;
-using IdentitySystem.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System;
 
 namespace WebApplication.Database
 {
-    public sealed class DatabaseContext : IdentityDatabaseContext<IdentityUser, IdentityRole, IdentityUserRole, IdentityUserClaim, Guid>
+    public sealed class DatabaseContext :
+        IdentityDatabaseContext<ApplicationUser, ApplicationRole, ApplicationUserRole, ApplicationUserClaim, Guid>
     {
         private readonly ConnectionStringOptions connectionStringOptions;
 
@@ -22,7 +23,7 @@ namespace WebApplication.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            var userRoleTable = modelBuilder.Entity<IdentityUserRole>().ToTable(nameof(IdentityUserRole));
+            var userRoleTable = modelBuilder.Entity<ApplicationUserRole>().ToTable(nameof(ApplicationUserRole));
             userRoleTable.HasOne(x => x.Role).WithMany().HasForeignKey(userRole => userRole.RoleID).HasPrincipalKey(role => role.ID);
             userRoleTable.HasOne(x => x.User).WithMany().HasForeignKey(userRole => userRole.UserID).HasPrincipalKey(user => user.ID);
         }

@@ -1,9 +1,10 @@
-﻿using IdentitySystem.Abstract;
+﻿using Identity.Abstract.Interfaces;
+using IdentityDataAccessLayer.Models;
+using IdentitySystem.Abstract.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
 
 namespace WebApplication.Controllers
 {
@@ -11,13 +12,13 @@ namespace WebApplication.Controllers
     [Route("/api/[controller]/[action]")]
     public class ConfirmationController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly ISMSConfirmationService<IdentityUser, Guid> phoneConfirmationService;
-        private readonly IEmailConfirmationService<IdentityUser, Guid> emailConfirmationService;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly IPhoneNumberConfirmationService<ApplicationUser, Guid> phoneConfirmationService;
+        private readonly IEmailConfirmationService<ApplicationUser, Guid> emailConfirmationService;
 
-        public ConfirmationController(UserManager<IdentityUser> userManager, 
-            ISMSConfirmationService<IdentityUser, Guid> phoneConfirmationService,
-            IEmailConfirmationService<IdentityUser, Guid> emailConfirmationService)
+        public ConfirmationController(UserManager<ApplicationUser> userManager, 
+            IPhoneNumberConfirmationService<ApplicationUser, Guid> phoneConfirmationService,
+            IEmailConfirmationService<ApplicationUser, Guid> emailConfirmationService)
         {
             this.userManager = userManager;
             this.phoneConfirmationService = phoneConfirmationService;

@@ -1,5 +1,5 @@
-﻿using IdentityDataAccessLayer.Options;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
+using IdentityDataAccessLayer.Options;
 using WebApplication.Infrastructure.Options;
 
 namespace WebApplication.Infrastructure.OptionSetup
