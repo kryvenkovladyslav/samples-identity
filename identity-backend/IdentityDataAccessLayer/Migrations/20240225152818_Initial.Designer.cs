@@ -12,7 +12,7 @@ using WebApplication.Database;
 namespace IdentityDataAccessLayer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240218151723_Initial")]
+    [Migration("20240225152818_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -81,10 +81,21 @@ namespace IdentityDataAccessLayer.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("NormalizedUserName");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Password");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("PhoneNumber");
+
+                    b.Property<string>("SecurityStamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("")
+                        .HasColumnName("SecurityStamp");
 
                     b.Property<string>("UserName")
                         .IsRequired()

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using System;
+using System.Security.Claims;
 using WebApplication.Data;
 using WebApplication.Infrastructure.Authentication;
 using WebApplication.Infrastructure.Authorization.Requirements;
@@ -18,7 +20,7 @@ namespace WebApplication.Infrastructure.Authorization
             { 
                 new DefaultAuthorizationRequirement { Name = "Vladyslav" },
                 new RolesAuthorizationRequirement(new [] {  Enum.GetName(ApplicationRoles.Tester) }),
-            }, new[] { AuthenticationDefaults.CustomScheme });
+            }, new[] { IdentityConstants.ApplicationScheme });
 
             options.AddPolicy(CustomUserPolicyName, new AuthorizationPolicy(new[] 
             {
@@ -27,9 +29,9 @@ namespace WebApplication.Infrastructure.Authorization
 
             options.AddPolicy(CustomAdministratorPolicyName, builder =>
             {
-                builder.RequireRole(Enum.GetName(ApplicationRoles.Admin));
-                builder.AddRequirements(new[] { new NameAuthorizationRequirement("Jack") });
-                builder.AddAuthenticationSchemes(AuthenticationDefaults.CustomScheme);
+                builder.RequireClaim(ClaimTypes.Role, new[] { Enum.GetName(ApplicationRoles.Admin).ToUpper() });
+                builder.AddRequirements(new[] { new NameAuthorizationRequirement("rita") });
+                builder.AddAuthenticationSchemes(IdentityConstants.ApplicationScheme);
             });
         }
     }

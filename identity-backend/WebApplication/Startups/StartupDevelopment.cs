@@ -5,21 +5,18 @@ using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System;
 using Microsoft.AspNetCore.DataProtection;
-using WebApplication.Infrastructure.Middleware;
-using WebApplication.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using WebApplication.Infrastructure.Authorization.Handlers;
 using WebApplication.Infrastructure.Authorization;
 using IdentitySystem.Extensions;
-using WebApplication.Models;
 using WebApplication.Infrastructure.Options;
 using WebApplication.Infrastructure.OptionSetup;
-using IdentitySystem.Validation;
-using WebApplication.Infrastructure;
 using IdentityDataAccessLayer.Models;
 using WebApplication.Database;
 using IdentityDataAccessLayer.Extensions;
-using IdentitySystem.Models;
+using Microsoft.AspNetCore.Identity;
+using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
+using IdentityRole = IdentityDataAccessLayer.Models.IdentityRole;
 
 namespace WebApplication.Startups
 {
@@ -58,18 +55,20 @@ namespace WebApplication.Startups
 
             services.AddIdentityDataAccess();
 
-            services.AddEntityFrameworkStores<IdentityUser, IdentityRole, IdentityUserRole, IdentityUserClaim, Guid, DatabaseContext>();
-            services.AddConfirmationServices<IdentityUser, Guid>();
+            var managerType = typeof(SignInManager<>).MakeGenericType(typeof(IdentityUser));
+            services.AddScoped(managerType);
+            services.AddCustomIdentitySystem<IdentityUser, IdentityRole, IdentityUserRole, IdentityUserClaim, Guid, DatabaseContext>();
 
-            services.AddAuthentication(options =>
-            {
-                options.AddScheme<ExtendedAuthenticationHandler>(AuthenticationDefaults.CustomScheme, AuthenticationDefaults.CustomScheme);
-                options.DefaultScheme = AuthenticationDefaults.CustomScheme;
-            });
-            services.AddAuthorization(options =>
-            {
-                AuthorizationPolicies.AddPolicies(options);
-            });
+
+            /* services.AddAuthentication(options =>
+             {
+                 options.AddScheme<ExtendedAuthenticationHandler>(AuthenticationDefaults.CustomScheme, AuthenticationDefaults.CustomScheme);
+                 options.DefaultScheme = AuthenticationDefaults.CustomScheme;
+             });*/
+             services.AddAuthorization(options =>
+             {
+                 AuthorizationPolicies.AddPolicies(options);
+             });
 
         }
 
@@ -99,7 +98,7 @@ namespace WebApplication.Startups
 
             //app.UseMiddleware<AuthorizationReporterMiddleware>();
 
-            app.UseMiddleware<ClaimsReporterMiddleware>();
+            //app.UseMiddleware<ClaimsReporterMiddleware>();
 
             // Use this middleware to enable custom authorization middleware without authorization service being configured
             //app.UseMiddleware<Infrastructure.Middleware.AuthorizationMiddleware>();

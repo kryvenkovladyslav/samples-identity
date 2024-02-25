@@ -10,37 +10,58 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
+using IdentitySystem.Constants;
 
 namespace IdentitySystem.Extensions
 {
     public static class IServiceCollectionExtensions
     {
-        public static IServiceCollection AddEntityFrameworkStores<TUser, TRole, TUserRole, TUseClaim, TKey, TContext>(this IServiceCollection services)
+        public static IServiceCollection AddCustomIdentitySystem<TUser, TRole, TUserRole, TUseClaim, TKey, TContext>(this IServiceCollection services)
             where TContext : DbContext
             where TKey : IEquatable<TKey>
             where TUser : BaseApplicationUser<TKey>
             where TRole : BaseApplicationRole<TKey>
             where TUserRole : BaseApplicationUserRole<TKey>
-            where TUseClaim: BaseApplicationUserClaim<TKey>
+            where TUseClaim : BaseApplicationUserClaim<TKey>
         {
-            var userIdentifierType = typeof(TUser).BaseType.GetGenericArguments()[0];
+            services.TryAddSingleton<IPasswordHasher<TUser>, IdentityPasswordHasher<TUser, TKey>>();
 
-            var userStoreType = typeof(DatabaseUserStore<,,,,,>).MakeGenericType(typeof(TUser), typeof(TRole), typeof(TUserRole), typeof(TUseClaim), typeof(TKey), typeof(TContext));
+            var userStoreType = typeof(DatabaseUserStore<,,,,,>)
+                .MakeGenericType(typeof(TUser), typeof(TRole), typeof(TUserRole), typeof(TUseClaim), typeof(TKey), typeof(TContext));
 
             services.TryAddScoped(typeof(IUserStore<TUser>), userStoreType);
+
+            services.AddHttpContextAccessor();
+            services.TryAddScoped<ILookupNormalizer, UpperLookupNormalizer>();
+            services.TryAddScoped<IUserClaimsPrincipalFactory<TUser>, PrincipalClaimsFactory<TUser, TKey>>();
+
+            services.TryAddScoped<ISMSConfirmationService<TUser, TKey>, SMSConfirmationService<TUser, TKey>>();
+            services.TryAddScoped<IEmailConfirmationService<TUser, TKey>, EmailConfirmationService<TUser, TKey>>();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = IdentityAuthenticationDefaults.ApplicationScheme;
+                options.DefaultChallengeScheme = IdentityAuthenticationDefaults.ApplicationScheme;
+                options.DefaultSignInScheme = IdentityAuthenticationDefaults.ExternalScheme;
+            })
+                .AddCookie(IdentityAuthenticationDefaults.ApplicationScheme);
+
             services.AddIdentityCore<TUser>(options =>
             {
                 options.Tokens.ChangePhoneNumberTokenProvider = TokenOptions.DefaultPhoneProvider;
                 options.Tokens.ChangeEmailTokenProvider = TokenOptions.DefaultEmailProvider;
                 options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
-            })
-                .AddTokenProvider(TokenOptions.DefaultPhoneProvider, typeof(SMSSecurityTokenProvider<TUser, TKey>))
-                .AddTokenProvider(TokenOptions.DefaultEmailProvider, typeof(EmailSecurityTokenProvider<TUser, TKey>));
+                options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultPhoneProvider;
+            }).AddTokenDefaultProviders();
+
+            services.TryAddSingleton<IUserValidator<TUser>, EmailValidator<TUser, TKey>>();
+            services.TryAddSingleton<IPasswordValidator<TUser>, IdentityPasswordValidator<TUser, TKey>>();
+
 
             return services;
         }
 
-        public static IdentityBuilder AddTokenDefaultProviders(this IdentityBuilder builder)
+        private static IdentityBuilder AddTokenDefaultProviders(this IdentityBuilder builder)
         {
             var userType = builder.UserType;
             var keyType = userType.BaseType.GetGenericArguments()[0];
@@ -49,49 +70,11 @@ namespace IdentitySystem.Extensions
             var emailTokenProvider = typeof(EmailSecurityTokenProvider<,>).MakeGenericType(userType, keyType);
             var defaultTokenProvider = typeof(DefaultSecurityTokenProvider<,>).MakeGenericType(userType, keyType);
 
-            
-
             builder.AddTokenProvider(TokenOptions.DefaultProvider, defaultTokenProvider);
             builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, phoneTokenProvider);
             builder.AddTokenProvider(TokenOptions.DefaultEmailProvider, emailTokenProvider);
 
             return builder;
-        }
-
-        public static IServiceCollection AddConfirmationServices<TUser, TKey>(this IServiceCollection services)
-            where TKey : IEquatable<TKey>
-            where TUser : BaseApplicationUser<TKey>
-        {
-            services.TryAddScoped<ISMSConfirmationService<TUser, TKey>, SMSConfirmationService<TUser, TKey>>();
-            services.TryAddScoped<IEmailConfirmationService<TUser, TKey>, EmailConfirmationService<TUser, TKey>>();
-
-            return services;
-        }
-
-        public static IServiceCollection AddIdentitySystem<TUser>(this IServiceCollection services)
-            where TUser : BaseApplicationUser, new()
-        {
-            services.AddEmailValidator<TUser>().AddUpperLookUpNormalizer().AddInMemoryUserStore<TUser>().AddIdentityCore<TUser>();
-            return services;
-        }
-
-        public static IServiceCollection AddEmailValidator<TUser>(this IServiceCollection services)
-            where TUser : BaseApplicationUser, new()
-        {
-            services.TryAddSingleton<IUserValidator<TUser>, EmailValidator<TUser>>();
-            return services;
-        }
-
-        public static IServiceCollection AddUpperLookUpNormalizer(this IServiceCollection services)
-        {
-            return AddLookNormalizer<UpperInvariantLookupNormalizer>(services);
-        }
-
-        public static IServiceCollection AddLookNormalizer<TNormalizer>(this IServiceCollection services) 
-            where TNormalizer : class, ILookupNormalizer
-        {
-            services.TryAddTransient<ILookupNormalizer, TNormalizer>();
-            return services;
         }
 
         public static IServiceCollection AddInMemoryUserStore<TUser>(this IServiceCollection services)

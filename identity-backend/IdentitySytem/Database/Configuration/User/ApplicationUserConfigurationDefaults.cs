@@ -19,5 +19,7 @@
         public static string IsPhoneNumberConfirmed { get; private set; } = nameof(IsPhoneNumberConfirmed);
 
         public static string SecurityStamp { get; private set; } = nameof(SecurityStamp);
+
+        public static string Password { get; private set; } = nameof(Password);
     }
 }

@@ -78,6 +78,11 @@ namespace IdentityDataAccessLayer.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("NormalizedUserName");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Password");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplication.Models;
 using IdentityUser = IdentityDataAccessLayer.Models.IdentityUser;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
@@ -91,6 +92,25 @@ namespace WebApplication.Controllers
             }
 
             return this.Created("~api/User/AddUser", name);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<IdentityUser>> AddUserModel([FromBody] UserAuthentication model)
+        {
+            var creationResult = await this.userManager.CreateAsync(new IdentityUser
+            {
+                UserName = model.UserName,
+                Password = model.Password,
+                EmailAddress = model.Email,
+                PhoneNumber = model.PhoneNumber
+            }, model.Password);
+
+            if (!creationResult.Succeeded)
+            {
+                return this.BadRequest(creationResult.Errors);
+            }
+
+            return this.Created("~api/User/AddUser", model.UserName);
         }
 
         [HttpDelete]

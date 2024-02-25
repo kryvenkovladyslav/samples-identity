@@ -2,13 +2,15 @@
 using IdentitySystem.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace IdentitySystem.Validation
 {
-    public class EmailValidator<TUser> : UserValidator<TUser>, IUserValidator<TUser>
-        where TUser : BaseApplicationUser, new()
+    public class EmailValidator<TUser, TKey> : UserValidator<TUser>, IUserValidator<TUser>
+        where TKey : IEquatable<TKey>
+        where TUser : BaseApplicationUser<TKey>
     {
         private readonly EmailValidationOptions options;
 

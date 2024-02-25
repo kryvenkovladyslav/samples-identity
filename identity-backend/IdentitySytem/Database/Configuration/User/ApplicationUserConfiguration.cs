@@ -45,6 +45,10 @@ namespace IdentitySystem.Database.Configuration.User
                 .HasDefaultValue(false)
                 .IsRequired(true);
 
+            userTable.Property(user => user.Password)
+                .HasColumnName(ApplicationUserConfigurationDefaults.Password)
+                .IsRequired(true);
+
             userTable.Property(user => user.SecurityStamp)
                 .HasColumnName(ApplicationUserConfigurationDefaults.SecurityStamp)
                 .HasDefaultValue(string.Empty)

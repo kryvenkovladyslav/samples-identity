@@ -36,7 +36,9 @@ namespace IdentityDataAccessLayer.Migrations
                     NormalizedEmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsEmailAddressConfirmed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsPhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                    IsPhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true, defaultValue: ""),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

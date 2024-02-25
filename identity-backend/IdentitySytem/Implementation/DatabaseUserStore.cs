@@ -15,6 +15,7 @@ namespace IdentitySystem.Implementation
         IUserRoleStore<TUser>,
         IUserClaimStore<TUser>,
         IUserEmailStore<TUser>,
+        IUserPasswordStore<TUser>,
         IQueryableUserStore<TUser>, 
         IUserPhoneNumberStore<TUser>,
         IUserSecurityStampStore<TUser>
@@ -25,6 +26,8 @@ namespace IdentitySystem.Implementation
         where TUserRole : BaseApplicationUserRole<TKey>, new()
         where TUserClaim: BaseApplicationUserClaim<TKey>, new()
     {
+        private readonly IPasswordHasher<TUser> passwordHasher;
+
         public IQueryable<TUser> Users
         {
             get
@@ -33,7 +36,10 @@ namespace IdentitySystem.Implementation
             }
         }
 
-        public DatabaseUserStore(TContext context) : base(context) { }
+        public DatabaseUserStore(TContext context, IPasswordHasher<TUser> passwordHasher) : base(context) 
+        {
+            this.passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
+        }
 
         #region IUserStore Implementation
 
@@ -350,6 +356,12 @@ namespace IdentitySystem.Implementation
                 RoleID = role.ID
             };
 
+            this.GetSet<TUserClaim>().Add(new TUserClaim
+            {
+                UserID = user.ID,
+                ClaimType = ClaimTypes.Role,
+                ClaimValue = roleName
+            });
             this.GetSet<TUserRole>().Add(userRole);
         }
 
@@ -451,6 +463,36 @@ namespace IdentitySystem.Implementation
             ArgumentNullException.ThrowIfNull(user, nameof(user));
 
             return Task.FromResult(user.SecurityStamp);
+        }
+
+        #endregion
+
+        #region IUserPasswordStore Implementation
+
+        public Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+            ArgumentNullException.ThrowIfNullOrEmpty(passwordHash, nameof(passwordHash));
+
+            user.Password = passwordHash;
+            return Task.CompletedTask;
+        }
+
+        public Task<string> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+
+            return Task.FromResult(user.Password);
+        }
+
+        public Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(user, nameof(user));
+
+            return Task.FromResult(!string.IsNullOrEmpty(user.Password));
         }
 
         #endregion

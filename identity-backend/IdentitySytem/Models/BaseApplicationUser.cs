@@ -50,6 +50,8 @@ namespace IdentitySystem.Models
         /// </summary>
         public virtual string SecurityStamp { get; set; }
 
+        public virtual string Password { get; set; }
+
         /// <summary>
         /// The default constructor is used to create an object
         /// </summary>
